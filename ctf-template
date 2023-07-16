@@ -1,0 +1,59 @@
+#!/bin/bash
+
+################################################################################
+# Script: ctf-template
+# Description: Generates a directory structure template for documenting CTF
+#              (Capture The Flag) machines.
+# Usage: 
+#   1. Ensure the script has execution permissions:
+#        chmod +x ctf-template
+#   2. Move the script to /usr/local/bin for system-wide access:
+#        sudo mv ctf-template /usr/local/bin/
+#   3. Run the script using the command 'ctf-template':
+#        ctf-template
+#   4. Enter the machine name when prompted.
+#   5. The script will create the necessary directory structure for the
+#      specified machine in the user's HackTheBox machines directory.
+# Author: neutron
+# Date: 16/07/23
+# Version: 1.0
+################################################################################
+
+# Prompt the user to enter the machine name
+read -p "Enter the machine name: " machine_name
+
+# Determine the user's home directory dynamically
+user_home=$(eval echo ~$USER)
+if [ -z "$user_home" ]; then
+  echo "Unable to determine user's home directory. Exiting."
+  exit 1
+fi
+
+# Define the base directory dynamically
+base_directory="$user_home/hackthebox/Machines"
+
+# Create the machine directory
+machine_directory="$base_directory/$machine_name"
+mkdir -p "$machine_directory"
+
+# Create subdirectories
+mkdir -p "$machine_directory/Enumeration"
+mkdir -p "$machine_directory/Exploitation"
+mkdir -p "$machine_directory/Privilege_Escalation"
+
+# Create placeholder files
+touch "$machine_directory/README.md"
+touch "$machine_directory/Enumeration/notes.md"
+touch "$machine_directory/Exploitation/notes.md"
+touch "$machine_directory/Privilege_Escalation/notes.md"
+
+# Create subdirectories for screenshots, scripts, and shells
+mkdir -p "$machine_directory/Enumeration/screenshots"
+mkdir -p "$machine_directory/Exploitation/screenshots"
+mkdir -p "$machine_directory/Exploitation/scripts"
+mkdir -p "$machine_directory/Exploitation/shells"
+mkdir -p "$machine_directory/Privilege_Escalation/screenshots"
+mkdir -p "$machine_directory/Privilege_Escalation/scripts"
+mkdir -p "$machine_directory/Privilege_Escalation/shells"
+
+echo "Template generated successfully for machine: $machine_name"
