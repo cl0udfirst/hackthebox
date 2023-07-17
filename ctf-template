@@ -3,7 +3,7 @@
 ################################################################################
 # Script: ctf-template
 # Description: Generates a directory structure template for documenting CTF
-#              (Capture The Flag) machines.
+#              (Capture The Flag) challenges.
 # Usage: 
 #   1. Ensure the script has execution permissions:
 #        chmod +x ctf-template
@@ -11,49 +11,89 @@
 #        sudo mv ctf-template /usr/local/bin/
 #   3. Run the script using the command 'ctf-template':
 #        ctf-template
-#   4. Enter the machine name when prompted.
-#   5. The script will create the necessary directory structure for the
-#      specified machine in the user's HackTheBox machines directory.
+#   4. Select the challenge type from the menu.
+#   5. Enter the challenge name when prompted.
+#   6. The script will create the necessary directory structure for the
+#      specified challenge in the user's CTF directory and open it in Visual Studio Code.
 # Author: neutron
 # Date: 16/07/23
-# Version: 1.0
+# Version: 1.7
 ################################################################################
 
-# Prompt the user to enter the machine name
-read -p "Enter the machine name: " machine_name
+# Function to display the challenge type selection menu
+display_menu() {
+  echo -e "\n\033[1m🚀 Welcome to CTF Template Generator! 🎯\033[0m"
+  echo "--------------------------------------"
+  echo -e "Select the challenge type:"
+  echo -e "  \033[1mM\033[0m - \033[1mMachine\033[0m"
+  echo -e "  \033[1mC\033[0m - \033[1mChallenge\033[0m"
+}
+
+# Prompt the user to select the challenge type
+challenge_type=""
+while [[ ! $challenge_type =~ ^[MmCc]$ ]]; do
+  display_menu
+  read -p "Enter your choice: " challenge_type
+  echo
+
+  if [[ ! $challenge_type =~ ^[MmCc]$ ]]; then
+    echo -e "\033[1;31mInvalid choice. Please try again.\033[0m"
+    echo
+  fi
+done
+
+# Prompt the user to enter the challenge name
+read -p "Enter the $challenge_type name: " challenge_name
+echo
 
 # Determine the user's home directory dynamically
 user_home=$(eval echo ~$USER)
 if [ -z "$user_home" ]; then
-  echo "Unable to determine user's home directory. Exiting."
+  echo -e "\033[1;31mUnable to determine user's home directory. Exiting.\033[0m"
   exit 1
 fi
 
 # Define the base directory dynamically
-base_directory="$user_home/hackthebox/Machines"
+base_directory="$user_home/hackthebox"
 
-# Create the machine directory
-machine_directory="$base_directory/$machine_name"
-mkdir -p "$machine_directory"
+# Create the appropriate directory based on the challenge type
+if [[ $challenge_type =~ ^[Mm]$ ]]; then
+  challenge_directory="$base_directory/Machines/$challenge_name"
+  mkdir -p "$challenge_directory"
 
-# Create subdirectories
-mkdir -p "$machine_directory/Enumeration"
-mkdir -p "$machine_directory/Exploitation"
-mkdir -p "$machine_directory/Privilege_Escalation"
+  # Create subdirectories
+  mkdir -p "$challenge_directory/Enumeration"
+  mkdir -p "$challenge_directory/Exploitation"
+  mkdir -p "$challenge_directory/Privilege_Escalation"
 
-# Create placeholder files
-touch "$machine_directory/README.md"
-touch "$machine_directory/Enumeration/notes.md"
-touch "$machine_directory/Exploitation/notes.md"
-touch "$machine_directory/Privilege_Escalation/notes.md"
+  # Create placeholder files
+  touch "$challenge_directory/README.md"
+  touch "$challenge_directory/Enumeration/notes.md"
+  touch "$challenge_directory/Exploitation/notes.md"
+  touch "$challenge_directory/Privilege_Escalation/notes.md"
 
-# Create subdirectories for screenshots, scripts, and shells
-mkdir -p "$machine_directory/Enumeration/screenshots"
-mkdir -p "$machine_directory/Exploitation/screenshots"
-mkdir -p "$machine_directory/Exploitation/scripts"
-mkdir -p "$machine_directory/Exploitation/shells"
-mkdir -p "$machine_directory/Privilege_Escalation/screenshots"
-mkdir -p "$machine_directory/Privilege_Escalation/scripts"
-mkdir -p "$machine_directory/Privilege_Escalation/shells"
+  # Create subdirectories for screenshots, scripts, and shells
+  mkdir -p "$challenge_directory/Enumeration/screenshots"
+  mkdir -p "$challenge_directory/Exploitation/screenshots"
+  mkdir -p "$challenge_directory/Exploitation/scripts"
+  mkdir -p "$challenge_directory/Exploitation/shells"
+  mkdir -p "$challenge_directory/Privilege_Escalation/screenshots"
+  mkdir -p "$challenge_directory/Privilege_Escalation/scripts"
+  mkdir -p "$challenge_directory/Privilege_Escalation/shells"
 
-echo "Template generated successfully for machine: $machine_name"
+else
+  challenge_directory="$base_directory/Challenges/$challenge_name"
+  mkdir -p "$challenge_directory"
+
+  # Create a notes.md file in the challenge directory
+  touch "$challenge_directory/notes.md"
+fi
+
+# Open the challenge directory in Visual Studio Code
+if code "$challenge_directory" >/dev/null 2>&1; then
+  echo -e "\033[1;32m\nCTF Template generated successfully for $challenge_type: $challenge_name ✅\033[0m"
+  echo -e "The directory has been opened in \033[1mVisual Studio Code\033[0m. \033[1m🎉\033[0m\n"
+else
+  echo -e "\033[1;32m\nCTF Template generated successfully for $challenge_type: $challenge_name ✅\033[0m"
+  echo -e "\033[1;31mUnable to open the directory in Visual Studio Code. ❌\033[0m\n"
+fi
